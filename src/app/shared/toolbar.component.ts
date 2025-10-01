@@ -156,7 +156,7 @@ import { CartService } from '../services/cart.service';
       gap:0.5rem;
     }
      mat-toolbar{
-      padding: 1rem;
+      padding: 1.5rem;
       gap: 1rem;
      }
     .desktop-links {
