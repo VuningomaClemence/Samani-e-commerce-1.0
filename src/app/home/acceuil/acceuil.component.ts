@@ -29,9 +29,7 @@ import { RouterLinkActive } from '../../../../node_modules/@angular/router';
       <div class="hero-content">
         <h1>Meubles d'exception pour votre intérieur</h1>
         @if (userNom && userPrenom) {
-        <span
-          style="margin-right: 1rem; font-size: 2rem; font-weight: bold; color: #e74c3c"
-        >
+        <span class="welcome-message">
           Bienvenue, {{ userNom }} {{ userPrenom }} !
         </span>
         }
@@ -275,9 +273,28 @@ import { RouterLinkActive } from '../../../../node_modules/@angular/router';
   margin-bottom: 20px;
 }
 
+.welcome-message {
+  margin-right: 1rem;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #e74c3c;
+}
+
 .hero p {
   font-size: 20px;
   margin-bottom: 30px;
+}
+@media (max-width: 600px) {
+  .hero-content h1 {
+    font-size: 28px ;
+  }
+  .hero p {
+  font-size: 14px;
+  margin-bottom: 30px;
+  }
+  .welcome-message {
+    font-size: 1.5rem;
+  }
 }
 /* Catégories */
 .categories {

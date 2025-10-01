@@ -88,7 +88,7 @@ import { MatIconModule } from '@angular/material/icon';
   styles: `
     .product-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(auto-fill, minmax(315px, 1fr));
       gap: 30px;
     }
 
