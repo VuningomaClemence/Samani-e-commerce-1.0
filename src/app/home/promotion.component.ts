@@ -9,7 +9,7 @@ import {
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, NgStyle } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { getAuth, onAuthStateChanged, User } from '@angular/fire/auth';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -19,7 +19,7 @@ import { CartService } from '../services/cart.service';
 @Component({
   selector: 'app-promotion',
   standalone: true,
-  imports: [MatCardModule, AsyncPipe, MatIconModule],
+  imports: [MatCardModule, AsyncPipe, MatIconModule, NgStyle],
   template: `
     <section class="promo-banner">
       <div class="container">

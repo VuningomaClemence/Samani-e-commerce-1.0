@@ -358,6 +358,16 @@ import { RouterLinkActive } from '../../../../node_modules/@angular/router';
   color: white;
   text-align: center;
   position: relative;
+  }
+
+  @media (max-width: 600px) {
+    .hero {
+      height: 50vh;
+      min-height: 250px;
+      font-size: 1rem;
+      padding: 20px;
+      background-position: center top;
+    }
 }
 
 .hero-content {
