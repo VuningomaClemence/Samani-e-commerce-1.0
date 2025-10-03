@@ -102,6 +102,14 @@ import { Router } from '@angular/router';
                 placeholder="Adresse de livraison"
                 rows="3"
               ></textarea>
+              <button
+                mat-button
+                type="button"
+                (click)="getLocation()"
+                style="margin-top:8px;float:right;"
+              >
+                Utiliser ma localisation
+              </button>
             </mat-form-field>
             <button
               class="btn btn-primary"
@@ -155,6 +163,36 @@ import { Router } from '@angular/router';
   `,
 })
 export default class LoginComponent {
+  // ...existing code...
+  getLocation() {
+    if (!navigator.geolocation) {
+      this.signupError =
+        "La géolocalisation n'est pas supportée par votre navigateur.";
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        // Utilisation de l'API Nominatim pour obtenir l'adresse à partir des coordonnées GPS uniquement
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+          );
+          const data = await response.json();
+          const address = data.display_name || `${lat}, ${lng}`;
+          this.signupForm.patchValue({ adresse: address });
+        } catch (error) {
+          this.signupError =
+            "Impossible de récupérer l'adresse depuis la localisation.";
+        }
+      },
+      (error) => {
+        this.signupError = "Impossible d'accéder à la localisation.";
+      },
+      { enableHighAccuracy: true }
+    );
+  }
   showLoginForm = true;
   loginForm: FormGroup;
   signupForm: FormGroup;
