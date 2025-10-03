@@ -12,6 +12,7 @@ import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CartService } from '../services/cart.service';
+import { IS_MEDIUM, IS_SMALL } from '../constants';
 
 @Component({
   selector: 'app-toolbar',
@@ -47,7 +48,7 @@ import { CartService } from '../services/cart.service';
               <button mat-menu-item routerLink="/armoires">Armoires</button>
             </mat-menu>
           </div>
-          <h2>
+          <h2 [ngStyle]="{ 'font-size': isMedium ? '1.5rem' : '2rem' }">
             <b style="color: #2c3e50">
               <span style="color: #e74c3c">S</span>amani<span
                 style="color: #e74c3c"
@@ -132,10 +133,7 @@ import { CartService } from '../services/cart.service';
       align-items: center;
     }
   }
-  h2 {
-    font-size: 35px;
-  }
- 
+   
   .desktop-links {
     display: flex;
     gap: 1rem;
@@ -155,10 +153,10 @@ import { CartService } from '../services/cart.service';
     .left-container {
       gap:0.5rem;
     }
-     mat-toolbar{
+    mat-toolbar{
       padding: 2rem;
       gap: 1rem;
-     }
+    }
     .desktop-links {
       display: none;
     }
@@ -180,6 +178,7 @@ import { CartService } from '../services/cart.service';
   `,
 })
 export class ToolbarComponent {
+  isMedium = window.innerWidth <= 768;
   user: User | null = null;
   userNom: string | null = null;
   cartCount = 0;
@@ -188,7 +187,7 @@ export class ToolbarComponent {
   constructor(
     private authService: AuthService,
     private snackBar: MatSnackBar,
-    private cartService: CartService // <-- Ajout
+    private cartService: CartService
   ) {
     const auth = getAuth();
     const db = getFirestore();
@@ -225,6 +224,10 @@ export class ToolbarComponent {
         items && items.length > 0
           ? items.reduce((sum, item) => sum + (item.quantite || 1), 0)
           : 0;
+    });
+
+    window.addEventListener('resize', () => {
+      this.isMedium = window.innerWidth <= 768;
     });
   }
 

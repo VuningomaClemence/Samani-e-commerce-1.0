@@ -24,19 +24,30 @@ import { CartService } from '../services/cart.service';
     <section class="promo-banner">
       <div class="container">
         @if ((produits$ | async)?.length === 0) {
-        <div style="color: white; text-align: center; font-size: 1.2rem;">
-          <h2>Offres Spéciales</h2>
+        <div
+          style="color: white; text-align: center;"
+          [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.2rem' }"
+        >
+          <h2 [ngStyle]="{ 'font-size': isMedium ? '1.2rem' : '2rem' }">
+            Offres Spéciales
+          </h2>
           <br />
-          <p><b>PAS DE PRODUITS EN PROMOTIONS POUR LE MOMENT !!!</b></p>
+          <p [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.2rem' }">
+            <b>PAS DE PRODUITS EN PROMOTIONS POUR LE MOMENT !!!</b>
+          </p>
           <br />
-          <p>
+          <p [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.2rem' }">
             Profitez de réductions sur les meubles de plus de 500 $.<br />
             <strong>Période de promotion : du 20 décembre au 06 janvier</strong>
           </p>
           <br />
         </div>
         } @else {
-        <h2 class="section-title" style="margin: 2rem; color: white;">
+        <h2
+          class="section-title"
+          style="margin: 2rem; color: white;"
+          [ngStyle]="{ 'font-size': isMedium ? '1.2rem' : '2rem' }"
+        >
           Produits en Promotion
         </h2>
         <div class="product-grid">
@@ -47,15 +58,28 @@ import { CartService } from '../services/cart.service';
                 <img [src]="produit.image" alt="{{ produit.nomProduit }}" />
               </div>
               <div class="product-info">
-                <h3 class="product-title">{{ produit.nomProduit }}</h3>
-                <p>{{ produit.description }}</p>
-                <div class="product-price">{{ produit.prix }} $</div>
+                <h3
+                  class="product-title"
+                  [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.2rem' }"
+                >
+                  {{ produit.nomProduit }}
+                </h3>
+                <p [ngStyle]="{ 'font-size': isMedium ? '0.9rem' : '1.1rem' }">
+                  {{ produit.description }}
+                </p>
+                <div
+                  class="product-price"
+                  [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.2rem' }"
+                >
+                  {{ produit.prix }} $
+                </div>
                 @if (isAdmin) {
                 <div class="admin-actions">
                   <button
                     matTooltip="Modifier le produit"
                     class="btn btn-warning"
                     (click)="modifierProduit(produit.id, produit)"
+                    [ngStyle]="{ 'font-size': isMedium ? '0.9rem' : '1rem' }"
                   >
                     <mat-icon>edit</mat-icon>
                   </button>
@@ -63,6 +87,7 @@ import { CartService } from '../services/cart.service';
                     matTooltip="Supprimer le produit"
                     class="btn btn-danger"
                     (click)="supprimerProduit(produit.id)"
+                    [ngStyle]="{ 'font-size': isMedium ? '0.9rem' : '1rem' }"
                   >
                     <mat-icon>delete</mat-icon>
                   </button>
@@ -72,6 +97,7 @@ import { CartService } from '../services/cart.service';
                   matTooltip="Ajouter au panier"
                   class="btn add-to-cart"
                   (click)="addToCart(produit.id, produit)"
+                  [ngStyle]="{ 'font-size': isMedium ? '0.9rem' : '1rem' }"
                 >
                   <mat-icon>add_shopping_cart</mat-icon>
                 </button>
@@ -146,8 +172,8 @@ export default class PromotionComponent implements OnInit {
   produits$!: Observable<any[]>;
   db = inject(Firestore);
   user: User | null = null;
-
   isAdmin = false;
+  isMedium = window.innerWidth <= 768;
 
   constructor(
     private authService: AuthService,
@@ -169,6 +195,9 @@ export default class PromotionComponent implements OnInit {
       } else {
         this.isAdmin = false;
       }
+    });
+    window.addEventListener('resize', () => {
+      this.isMedium = window.innerWidth <= 768;
     });
   }
 

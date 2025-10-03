@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { User, getAuth, onAuthStateChanged } from 'firebase/auth';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../services/auth.service';
-import { CartService } from '../../services/cart.service'; // <-- Ajout
+import { CartService } from '../../services/cart.service';
 import { CommonModule } from '@angular/common';
 import { getFirestore } from 'firebase/firestore';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -27,17 +27,29 @@ import { RouterLinkActive } from '../../../../node_modules/@angular/router';
   template: `
     <section class="hero">
       <div class="hero-content">
-        <h1>Meubles d'exception pour votre intérieur</h1>
+        <h1 [ngStyle]="{ 'font-size': isMedium ? '1.5rem' : '3rem' }">
+          Meubles d'exception pour votre intérieur
+        </h1>
         @if (userNom && userPrenom) {
-        <span class="welcome-message">
+        <span
+          class="welcome-message"
+          [ngStyle]="{ 'font-size': isMedium ? '1.2rem' : '2rem' }"
+        >
           Bienvenue, {{ userNom }} {{ userPrenom }} !
         </span>
         }
-        <p id="hero-user-message">
+        <p
+          id="hero-user-message"
+          [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.5rem' }"
+        >
           Découvrez notre collection exclusive de chaises et meubles design,
           fabriqués avec des matériaux de qualité supérieure.
         </p>
-        <a class="btn add-to-cart" routerLink="/collection">
+        <a
+          class="btn add-to-cart"
+          routerLink="/collection"
+          [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.2rem' }"
+        >
           Découvrez notre collection
         </a>
       </div>
@@ -45,7 +57,12 @@ import { RouterLinkActive } from '../../../../node_modules/@angular/router';
 
     <section class="categories">
       <div class="container">
-        <h2 class="section-title">Nos Catégories</h2>
+        <h2
+          class="section-title"
+          [ngStyle]="{ 'font-size': isMedium ? '1.2rem' : '2rem' }"
+        >
+          Nos Catégories
+        </h2>
         <div class="category-grid">
           <a routerLink="/chaises" class="category-card">
             <img
@@ -53,7 +70,9 @@ import { RouterLinkActive } from '../../../../node_modules/@angular/router';
               alt="Chaises"
             />
             <div class="category-overlay">
-              <h3>Chaises</h3>
+              <h3 [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.3rem' }">
+                Chaises
+              </h3>
             </div>
           </a>
           <a routerLink="/canapes" class="category-card">
@@ -62,7 +81,9 @@ import { RouterLinkActive } from '../../../../node_modules/@angular/router';
               alt="Canapés"
             />
             <div class="category-overlay">
-              <h3>Canapés</h3>
+              <h3 [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.3rem' }">
+                Canapés
+              </h3>
             </div>
           </a>
           <a routerLink="/tables" class="category-card">
@@ -71,7 +92,9 @@ import { RouterLinkActive } from '../../../../node_modules/@angular/router';
               alt="Tables"
             />
             <div class="category-overlay">
-              <h3>Tables</h3>
+              <h3 [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.3rem' }">
+                Tables
+              </h3>
             </div>
           </a>
           <a routerLink="/armoires" class="category-card">
@@ -80,7 +103,9 @@ import { RouterLinkActive } from '../../../../node_modules/@angular/router';
               alt="Armoires"
             />
             <div class="category-overlay">
-              <h3>Armoires</h3>
+              <h3 [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.3rem' }">
+                Armoires
+              </h3>
             </div>
           </a>
         </div>
@@ -89,20 +114,32 @@ import { RouterLinkActive } from '../../../../node_modules/@angular/router';
 
     <section class="promo-banner">
       <div class="container">
-        <h2>Soldes de fête - Jusqu'à 15% de réduction</h2>
-        <p>
+        <h2 [ngStyle]="{ 'font-size': isMedium ? '1.2rem' : '2rem' }">
+          Soldes de fête - Jusqu'à 15% de réduction
+        </h2>
+        <p [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.3rem' }">
           Profitez de nos meilleures offres sur une sélection de meubles. Offre
           valable du 20 décembre au 06 janvier.
         </p>
-        <a routerLink="/promotion" routerLinkActive="active" class="btn"
-          >Voir les promotions</a
+        <a
+          routerLink="/promotion"
+          routerLinkActive="active"
+          class="btn"
+          [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.2rem' }"
         >
+          Voir les promotions
+        </a>
       </div>
     </section>
 
     <section class="products">
       <div class="container">
-        <h2 class="section-title">Nos Produits Phares</h2>
+        <h2
+          class="section-title"
+          [ngStyle]="{ 'font-size': isMedium ? '1.2rem' : '2rem' }"
+        >
+          Nos Produits Phares
+        </h2>
         <div class="product-grid">
           <mat-card>
             <mat-card-content>
@@ -113,11 +150,22 @@ import { RouterLinkActive } from '../../../../node_modules/@angular/router';
                 />
               </div>
               <div class="product-info">
-                <h3 class="product-title">Canapé d'angle scandinave</h3>
-                <div class="product-price">950$</div>
+                <h3
+                  class="product-title"
+                  [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.3rem' }"
+                >
+                  Canapé d'angle scandinave
+                </h3>
+                <div
+                  class="product-price"
+                  [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.2rem' }"
+                >
+                  950$
+                </div>
                 @if (!isAdmin){
                 <button
                   class="btn"
+                  [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.1rem' }"
                   (click)="
                     addToCart('canape1', {
                       nomProduit: 'Canapé d_angle scandinave',
@@ -143,11 +191,22 @@ import { RouterLinkActive } from '../../../../node_modules/@angular/router';
                 />
               </div>
               <div class="product-info">
-                <h3 class="product-title">Table d'appoint scandinave</h3>
-                <div class="product-price">200$</div>
+                <h3
+                  class="product-title"
+                  [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.3rem' }"
+                >
+                  Table d'appoint scandinave
+                </h3>
+                <div
+                  class="product-price"
+                  [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.2rem' }"
+                >
+                  200$
+                </div>
                 @if (!isAdmin) {
                 <button
                   class="btn"
+                  [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.1rem' }"
                   (click)="
                     addToCart('table1', {
                       nomProduit: 'Table d_appoint scandinave',
@@ -173,11 +232,22 @@ import { RouterLinkActive } from '../../../../node_modules/@angular/router';
                 />
               </div>
               <div class="product-info">
-                <h3 class="product-title">Armoire vintage</h3>
-                <div class="product-price">200$</div>
+                <h3
+                  class="product-title"
+                  [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.3rem' }"
+                >
+                  Armoire vintage
+                </h3>
+                <div
+                  class="product-price"
+                  [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.2rem' }"
+                >
+                  200$
+                </div>
                 @if (!isAdmin) {
                 <button
                   class="btn"
+                  [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.1rem' }"
                   (click)="
                     addToCart('armoire1', {
                       nomProduit: 'Armoire vintage',
@@ -203,11 +273,22 @@ import { RouterLinkActive } from '../../../../node_modules/@angular/router';
                 />
               </div>
               <div class="product-info">
-                <h3 class="product-title">Chaise scandinave bleu pétrole</h3>
-                <div class="product-price">120$</div>
+                <h3
+                  class="product-title"
+                  [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.3rem' }"
+                >
+                  Chaise scandinave bleu pétrole
+                </h3>
+                <div
+                  class="product-price"
+                  [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.2rem' }"
+                >
+                  120$
+                </div>
                 @if (!isAdmin) {
                 <button
                   class="btn"
+                  [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.1rem' }"
                   (click)="
                     addToCart('chaise1', {
                       nomProduit: 'Chaise scandinave bleu pétrole',
@@ -230,20 +311,36 @@ import { RouterLinkActive } from '../../../../node_modules/@angular/router';
       <div class="container">
         <div class="stats-grid">
           <div class="stat-item">
-            <h3>250+</h3>
-            <p>Clients satisfaits</p>
+            <h3 [ngStyle]="{ 'font-size': isMedium ? '1.2rem' : '2rem' }">
+              250+
+            </h3>
+            <p [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.2rem' }">
+              Clients satisfaits
+            </p>
           </div>
           <div class="stat-item">
-            <h3>10+</h3>
-            <p>Années d'expérience</p>
+            <h3 [ngStyle]="{ 'font-size': isMedium ? '1.2rem' : '2rem' }">
+              10+
+            </h3>
+            <p [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.2rem' }">
+              Années d'expérience
+            </p>
           </div>
           <div class="stat-item">
-            <h3>100+</h3>
-            <p>Produits disponibles</p>
+            <h3 [ngStyle]="{ 'font-size': isMedium ? '1.2rem' : '2rem' }">
+              100+
+            </h3>
+            <p [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.2rem' }">
+              Produits disponibles
+            </p>
           </div>
           <div class="stat-item">
-            <h3>24/7</h3>
-            <p>Service client</p>
+            <h3 [ngStyle]="{ 'font-size': isMedium ? '1.2rem' : '2rem' }">
+              24/7
+            </h3>
+            <p [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.2rem' }">
+              Service client
+            </p>
           </div>
         </div>
       </div>
@@ -478,6 +575,7 @@ import { RouterLinkActive } from '../../../../node_modules/@angular/router';
 `,
 })
 export default class AcceuilComponent {
+  isMedium = window.innerWidth <= 768;
   user: User | null = null;
   userNom: string | null = null;
   userPrenom: string | null = null;
