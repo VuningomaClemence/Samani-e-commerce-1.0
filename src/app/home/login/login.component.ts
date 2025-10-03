@@ -101,6 +101,7 @@ import { Router } from '@angular/router';
                 formControlName="adresse"
                 placeholder="Adresse de livraison"
                 rows="3"
+                required
               ></textarea>
               <button
                 mat-button
