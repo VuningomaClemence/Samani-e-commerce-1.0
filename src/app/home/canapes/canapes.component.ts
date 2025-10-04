@@ -93,7 +93,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     }
 
     .product-card {
-      background-color: white;
       border-radius: 8px;
       overflow: hidden;
       margin: 2rem;

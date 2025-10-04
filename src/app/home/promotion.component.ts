@@ -37,7 +37,7 @@ import { CartService } from '../services/cart.service';
           </p>
           <br />
           <p [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.2rem' }">
-            Profitez de réductions sur les meubles de plus de 500 $.<br />
+            Profitez de réductions sur les meubles de plus de 250 $.<br />
             <strong>Période de promotion : du 20 décembre au 06 janvier</strong>
           </p>
           <br />
@@ -124,7 +124,6 @@ import { CartService } from '../services/cart.service';
       gap: 30px;
     }
     .product-card {
-      background-color: white;
       border-radius: 8px;
       overflow: hidden;
       margin: 2rem;

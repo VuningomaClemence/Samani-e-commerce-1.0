@@ -92,7 +92,7 @@ import { Router } from '@angular/router';
             </mat-form-field>
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Phone number</mat-label>
-              <input matInput type="tel" formControlName="telephone" />
+              <input matInput type="tel" formControlName="telephone" required />
             </mat-form-field>
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Adresse de livraison</mat-label>
@@ -107,6 +107,7 @@ import { Router } from '@angular/router';
                 mat-button
                 type="button"
                 (click)="getLocation()"
+                class="btn btn-secondary"
                 style="margin-top:8px;float:right;"
               >
                 Utiliser ma localisation
@@ -185,8 +186,8 @@ export default class LoginComponent {
       prenom: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
-      telephone: [''],
-      adresse: [''],
+      telephone: ['', Validators.required],
+      adresse: ['', Validators.required],
     });
   }
 

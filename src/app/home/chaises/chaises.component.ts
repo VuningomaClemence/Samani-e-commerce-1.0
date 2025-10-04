@@ -93,7 +93,6 @@ import { MatIconModule } from '@angular/material/icon';
     }
 
     .product-card {
-      background-color: white;
       border-radius: 8px;
       overflow: hidden;
       margin: 2rem;

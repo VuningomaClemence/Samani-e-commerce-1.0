@@ -348,7 +348,7 @@ import { RouterLinkActive } from '../../../../node_modules/@angular/router';
   `,
   styles: `
   .hero {
-  background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.5)),
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0,0.3 )),
     url("https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80")
       no-repeat center center/cover;
   height: 80vh;
@@ -363,7 +363,7 @@ import { RouterLinkActive } from '../../../../node_modules/@angular/router';
   @media (max-width: 600px) {
     .hero {
       height: 50vh;
-      min-height: 250px;
+      min-height: 200px;
       font-size: 1rem;
       padding: 20px;
       background-position: center top;
