@@ -13,6 +13,7 @@ import {
 } from 'firebase/firestore';
 
 import { DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,7 +21,13 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   standalone: true,
-  imports: [DecimalPipe, MatCardModule, MatButtonModule, MatIconModule],
+  imports: [
+    DecimalPipe,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    CommonModule,
+  ],
   template: `
     <main class="panier-container">
       <h1 class="page-title">Votre Panier</h1>
@@ -48,7 +55,20 @@ import { MatSnackBar } from '@angular/material/snack-bar';
           <div class="product-info">
             <h3 class="product-title">{{ item.nomProduit }}</h3>
             <div class="product-price">
-              {{ item.prix | number : '1.2-2' }} $
+              @if (item.promotion && item.prixPromotion !== item.prix) {
+              <span
+                style="color: #888; text-decoration: line-through; margin-right: 8px;"
+              >
+                {{ getOldPrice(item.prix) }} $
+              </span>
+              <span style="color: #e74c3c; font-weight: bold;">
+                {{ getNewPrice(item.prix) }} $
+              </span>
+              } @else {
+              <span style="color: #e74c3c; font-weight: bold;">
+                {{ getOldPrice(item.prix) }} $
+              </span>
+              }
             </div>
             <div class="qty-row">
               <button
@@ -117,7 +137,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
       gap: 30px;
     }
     .product-card {
-      background-color: white;
       border-radius: 8px;
       overflow: hidden;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -335,5 +354,17 @@ export default class PanierComponent implements OnInit {
       { duration: 3000 }
     );
     await this.loadCart();
+  }
+  getOldPrice(prix: number): number {
+    return prix;
+  }
+
+  getNewPrice(prix: number): number {
+    if (prix > 500) {
+      return Math.round(prix * 0.9);
+    } else if (prix > 250) {
+      return Math.round(prix * 0.95);
+    }
+    return prix;
   }
 }

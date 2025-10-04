@@ -86,6 +86,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     </section>
   `,
   styles: `
+    .products {
+      padding: 60px 2rem;
+      background-color: #f9f9f9;
+    }
     .product-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(315px, 1fr));

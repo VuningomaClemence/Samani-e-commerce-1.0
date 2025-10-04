@@ -71,7 +71,21 @@ import { CartService } from '../services/cart.service';
                   class="product-price"
                   [ngStyle]="{ 'font-size': isMedium ? '1rem' : '1.2rem' }"
                 >
-                  {{ produit.prix }} $
+                  @if (produit.promotion && produit.prixPromotion !==
+                  produit.prix) {
+                  <span
+                    style="color: #888; text-decoration: line-through; margin-right: 8px;"
+                  >
+                    {{ getOldPrice(produit.prix) }} $
+                  </span>
+                  <span style="color: #e74c3c; font-weight: bold;">
+                    {{ getNewPrice(produit.prix) }} $
+                  </span>
+                  } @else {
+                  <span style="color: #e74c3c; font-weight: bold;">
+                    {{ getOldPrice(produit.prix) }} $
+                  </span>
+                  }
                 </div>
                 @if (isAdmin) {
                 <div class="admin-actions">
@@ -199,6 +213,18 @@ export default class PromotionComponent implements OnInit {
       this.isMedium = window.innerWidth <= 768;
     });
   }
+  getOldPrice(prix: number): number {
+    return prix;
+  }
+
+  getNewPrice(prix: number): number {
+    if (prix > 500) {
+      return Math.round(prix * 0.9);
+    } else if (prix > 250) {
+      return Math.round(prix * 0.95);
+    }
+    return prix;
+  }
 
   async modifierProduit(productId: string, produit: any) {
     const nomProduit = prompt('Nouveau nom du produit ?', produit.nomProduit);
@@ -211,9 +237,19 @@ export default class PromotionComponent implements OnInit {
     );
 
     if (nomProduit && prix && description && quantite && image) {
+      let prixNum = Number(prix);
+      let prixPromotion = prixNum;
+      if (promotion) {
+        if (prixNum > 500) {
+          prixPromotion = Math.round(prixNum * 0.9);
+        } else if (prixNum > 250) {
+          prixPromotion = Math.round(prixNum * 0.95);
+        }
+      }
       const newData = {
         nomProduit,
-        prix: Number(prix),
+        prix: prixNum,
+        prixPromotion,
         description,
         quantite: Number(quantite),
         image,

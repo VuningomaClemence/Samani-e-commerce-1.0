@@ -56,7 +56,26 @@ import { MatSnackBar } from '@angular/material/snack-bar';
             </mat-form-field>
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Prix</mat-label>
-              <input type="number" matInput formControlName="prix" required />
+              <input
+                type="number"
+                matInput
+                formControlName="prix"
+                required
+                (input)="updatePrixPromotionnel()"
+              />
+            </mat-form-field>
+            <mat-form-field
+              appearance="outline"
+              class="full-width"
+              *ngIf="productForm.get('promotion')?.value"
+            >
+              <mat-label>Prix promotionnel</mat-label>
+              <input
+                type="number"
+                matInput
+                [value]="prixPromotionnel"
+                readonly
+              />
             </mat-form-field>
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Quantité</mat-label>
@@ -125,6 +144,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   `,
 })
 export default class AdminComponent {
+  prixPromotionnel: number = 0;
   productForm: FormGroup;
   message = '';
   private db = getFirestore();
@@ -139,6 +159,12 @@ export default class AdminComponent {
       image: ['', Validators.required],
       promotion: [false],
     });
+    this.productForm
+      .get('prix')
+      ?.valueChanges.subscribe(() => this.updatePrixPromotionnel());
+    this.productForm
+      .get('promotion')
+      ?.valueChanges.subscribe(() => this.updatePrixPromotionnel());
   }
 
   async onSubmit() {
@@ -148,16 +174,38 @@ export default class AdminComponent {
       return;
     }
     try {
+      const values = this.productForm.value;
+      let prix = Number(values.prix);
+      let prixPromotion = this.prixPromotionnel;
       await addDoc(collection(this.db, 'produits'), {
-        ...this.productForm.value,
+        ...values,
+        prix: prix,
+        prixPromotion: prixPromotion,
         dateAjout: serverTimestamp(),
       });
       this.snackBar.open('Produit ajouté avec succès !', 'Fermer', {
         duration: 2000,
       });
       this.productForm.reset();
+      this.prixPromotionnel = 0;
     } catch (error: any) {
       this.message = `Erreur: ${error.message}`;
+    }
+  }
+
+  updatePrixPromotionnel() {
+    const prix = Number(this.productForm.get('prix')?.value);
+    const promo = this.productForm.get('promotion')?.value;
+    if (promo) {
+      if (prix > 500) {
+        this.prixPromotionnel = Math.round(prix * 0.9);
+      } else if (prix > 250) {
+        this.prixPromotionnel = Math.round(prix * 0.95);
+      } else {
+        this.prixPromotionnel = prix;
+      }
+    } else {
+      this.prixPromotionnel = prix;
     }
   }
 }

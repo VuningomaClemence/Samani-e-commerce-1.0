@@ -525,18 +525,6 @@ import { RouterLinkActive } from '../../../../node_modules/@angular/router';
   margin-bottom: 15px;
 }
 
-.product-price .old-price {
-  text-decoration: line-through;
-  color: #777;
-  font-size: 16px;
-  margin-left: 10px;
-}
-
-.product-rating {
-  color: #f39c12;
-  margin-bottom: 15px;
-}
-
 /* Statistiques */
 .stats {
   padding: 60px 0;
