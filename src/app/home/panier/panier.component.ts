@@ -280,28 +280,7 @@ export default class PanierComponent implements OnInit {
   async updateQty(item: any, change: number) {
     const newQty = item.quantite + change;
     if (newQty < 1) return;
-    const auth = getAuth();
-    const user = auth.currentUser;
-    if (user) {
-      const db = getFirestore();
-      const itemRef = doc(db, 'clients', user.uid, 'panier', item.id);
-      await updateDoc(itemRef, { quantite: newQty });
-    } else {
-      await this.cartService.updateQty(item.id, newQty);
-    }
-    await this.loadCart();
-  }
-
-  async removeItem(item: any) {
-    const auth = getAuth();
-    const user = auth.currentUser;
-    if (user) {
-      const db = getFirestore();
-      const itemRef = doc(db, 'clients', user.uid, 'panier', item.id);
-      await deleteDoc(itemRef);
-    } else {
-      await this.cartService.removeFromCart(item.id);
-    }
+    await this.cartService.updateQty(item.id, newQty);
     await this.loadCart();
   }
 
@@ -366,5 +345,9 @@ export default class PanierComponent implements OnInit {
       return Math.round(prix * 0.95);
     }
     return prix;
+  }
+  async removeItem(item: any) {
+    await this.cartService.removeFromCart(item.id);
+    await this.loadCart();
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
-import { getAuth } from 'firebase/auth';
+import { BehaviorSubject } from 'rxjs';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import {
   getFirestore,
   doc,
@@ -12,6 +12,7 @@ import {
   collection,
   getDocs,
   writeBatch,
+  onSnapshot,
 } from 'firebase/firestore';
 
 function isBrowser(): boolean {
@@ -20,9 +21,103 @@ function isBrowser(): boolean {
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
-  cartCountChanged = new Subject<number>();
+  cartCountChanged = new BehaviorSubject<number>(0);
   private db = getFirestore();
   private auth = getAuth();
+  // Firestore realtime unsubscribe for the current user's cart
+  private cartUnsubscribe: (() => void) | null = null;
+
+  // storage event listener for localStorage updates across tabs
+  private storageListener = (e: StorageEvent) => {
+    if (e.key === 'panier') {
+      this.refreshCount();
+    }
+  };
+
+  constructor() {
+    // Setup auth listener to attach realtime cart listener for logged users
+    this.setupAuthCartListener();
+    // Initial refresh for local (if not authenticated) or when auth state resolves
+    this.refreshCount();
+  }
+
+  private setupAuthCartListener() {
+    try {
+      onAuthStateChanged(this.auth, (user) => {
+        // detach previous snapshot listener if any
+        if (this.cartUnsubscribe) {
+          try {
+            this.cartUnsubscribe();
+          } catch (e) {
+            // ignore
+          }
+          this.cartUnsubscribe = null;
+        }
+
+        if (user) {
+          // Attach a realtime listener to the user's panier collection
+          const cartCol = collection(this.db, 'clients', user.uid, 'panier');
+          this.cartUnsubscribe = onSnapshot(
+            cartCol,
+            (snapshot) => {
+              const items = snapshot.docs.map((d) => ({
+                id: d.id,
+                ...(d.data() as any),
+              }));
+              const count = items.reduce(
+                (sum: number, item: any) => sum + (item.quantite || 1),
+                0
+              );
+              this.cartCountChanged.next(count);
+            },
+            (err) => {
+              // on error fallback to one-time refresh
+              console.error('Cart onSnapshot error:', err);
+              this.refreshCount();
+            }
+          );
+          // Ensure storage listener is removed when using realtime firestore
+          if (
+            typeof window !== 'undefined' &&
+            typeof window.removeEventListener === 'function'
+          ) {
+            try {
+              window.removeEventListener('storage', this.storageListener);
+            } catch (e) {
+              // ignore
+            }
+          }
+        } else {
+          // Not authenticated: ensure we listen for localStorage changes across tabs
+          if (
+            typeof window !== 'undefined' &&
+            typeof window.addEventListener === 'function'
+          ) {
+            try {
+              // remove first to avoid duplicate listeners
+              window.removeEventListener('storage', this.storageListener);
+            } catch (e) {
+              // ignore
+            }
+            window.addEventListener('storage', this.storageListener);
+          }
+          // compute initial local count
+          this.refreshCount();
+        }
+      });
+    } catch (e) {
+      // If onAuthStateChanged is not available for any reason, fallback to refresh
+      this.refreshCount();
+    }
+  }
+
+  private async refreshCount() {
+    try {
+      const items = await this.getCartItems();
+      const count = items.reduce((sum, item) => sum + (item.quantite || 1), 0);
+      this.cartCountChanged.next(count);
+    } catch (e) {}
+  }
 
   // Ajouter un produit au panier
   async addToCart(productId: string, productData: any) {
@@ -48,10 +143,7 @@ export class CartService {
       }
       localStorage.setItem('panier', JSON.stringify(localCart));
     }
-    // Après ajout, notifie le changement
-    const items = await this.getCartItems();
-    const count = items.reduce((sum, item) => sum + (item.quantite || 1), 0);
-    this.cartCountChanged.next(count);
+    await this.refreshCount();
   }
 
   // Supprimer un produit du panier
@@ -65,6 +157,7 @@ export class CartService {
       delete localCart[productId];
       localStorage.setItem('panier', JSON.stringify(localCart));
     }
+    await this.refreshCount();
   }
 
   // Récupérer les produits du panier
@@ -99,6 +192,7 @@ export class CartService {
     } else if (isBrowser()) {
       localStorage.removeItem('panier');
     }
+    await this.refreshCount();
   }
 
   // Mettre à jour la quantité d'un produit
@@ -114,10 +208,7 @@ export class CartService {
         localStorage.setItem('panier', JSON.stringify(localCart));
       }
     }
-    // Optionnel : notifier le changement du nombre d'articles
-    const items = await this.getCartItems();
-    const count = items.reduce((sum, item) => sum + (item.quantite || 1), 0);
-    this.cartCountChanged.next(count);
+    await this.refreshCount();
   }
 
   // Modifier un produit dans la collection 'produits'
