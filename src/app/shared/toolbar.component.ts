@@ -41,11 +41,20 @@ import { IS_MEDIUM, IS_SMALL } from '../constants';
               <mat-icon>menu</mat-icon>
             </button>
             <mat-menu #menu="matMenu">
+              @if (user && !isAdmin) {
               <button mat-menu-item routerLink="/acceuil">Acceuil</button>
               <button mat-menu-item routerLink="/chaises">Chaises</button>
               <button mat-menu-item routerLink="/canapes">Canapés</button>
               <button mat-menu-item routerLink="/tables">Tables</button>
               <button mat-menu-item routerLink="/armoires">Armoires</button>
+              } @if (user && isAdmin){
+              <button mat-menu-item routerLink="/acceuil">Acceuil</button>
+              <button mat-menu-item routerLink="/chaises">Chaises</button>
+              <button mat-menu-item routerLink="/canapes">Canapés</button>
+              <button mat-menu-item routerLink="/tables">Tables</button>
+              <button mat-menu-item routerLink="/armoires">Armoires</button>
+              <button mat-menu-item routerLink="/commandes">Commandes</button>
+              }
             </mat-menu>
           </div>
           <h2 [ngStyle]="{ 'font-size': isMedium ? '1.5rem' : '2rem' }">
@@ -59,6 +68,7 @@ import { IS_MEDIUM, IS_SMALL } from '../constants';
         </div>
 
         <div class="desktop-links">
+          @if (user && isAdmin) {
           <a
             routerLink="/acceuil"
             routerLinkActive="active"
@@ -69,8 +79,20 @@ import { IS_MEDIUM, IS_SMALL } from '../constants';
           <a routerLink="/canapes" routerLinkActive="active">Canapés</a>
           <a routerLink="/tables" routerLinkActive="active">Tables</a>
           <a routerLink="/armoires" routerLinkActive="active">Armoires</a>
+          <a routerLink="/commandes" routerLinkActive="active">Commandes</a>
+          } @else {
+          <a
+            routerLink="/acceuil"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            >Acceuil</a
+          >
+          <a routerLink="/chaises" routerLinkActive="active">Chaises</a>
+          <a routerLink="/canapes" routerLinkActive="active">Canapés</a>
+          <a routerLink="/tables" routerLinkActive="active">Tables</a>
+          <a routerLink="/armoires" routerLinkActive="active">Armoires</a>
+          }
         </div>
-
         <div
           style="display: flex; gap: 1rem; justify-content: space-between; align-items: center;"
         >

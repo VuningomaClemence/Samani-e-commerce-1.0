@@ -48,6 +48,11 @@ export const routes: Routes = [
         loadComponent: () => import('./home/armoire/armoire.component'),
       },
       {
+        path: 'commandes',
+        title: `Commandes - ${APP_NAME}`,
+        loadComponent: () => import('./home/commandes/commandes.component'),
+      },
+      {
         path: 'panier',
         title: `Panier - ${APP_NAME}`,
         loadComponent: () => import('./home/panier/panier.component'),

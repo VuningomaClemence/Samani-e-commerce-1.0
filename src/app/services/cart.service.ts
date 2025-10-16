@@ -24,10 +24,9 @@ export class CartService {
   cartCountChanged = new BehaviorSubject<number>(0);
   private db = getFirestore();
   private auth = getAuth();
-  // Firestore realtime unsubscribe for the current user's cart
+
   private cartUnsubscribe: (() => void) | null = null;
 
-  // storage event listener for localStorage updates across tabs
   private storageListener = (e: StorageEvent) => {
     if (e.key === 'panier') {
       this.refreshCount();
@@ -35,9 +34,7 @@ export class CartService {
   };
 
   constructor() {
-    // Setup auth listener to attach realtime cart listener for logged users
     this.setupAuthCartListener();
-    // Initial refresh for local (if not authenticated) or when auth state resolves
     this.refreshCount();
   }
 
@@ -55,7 +52,6 @@ export class CartService {
         }
 
         if (user) {
-          // Attach a realtime listener to the user's panier collection
           const cartCol = collection(this.db, 'clients', user.uid, 'panier');
           this.cartUnsubscribe = onSnapshot(
             cartCol,
@@ -71,12 +67,10 @@ export class CartService {
               this.cartCountChanged.next(count);
             },
             (err) => {
-              // on error fallback to one-time refresh
               console.error('Cart onSnapshot error:', err);
               this.refreshCount();
             }
           );
-          // Ensure storage listener is removed when using realtime firestore
           if (
             typeof window !== 'undefined' &&
             typeof window.removeEventListener === 'function'
@@ -84,29 +78,25 @@ export class CartService {
             try {
               window.removeEventListener('storage', this.storageListener);
             } catch (e) {
-              // ignore
             }
           }
         } else {
-          // Not authenticated: ensure we listen for localStorage changes across tabs
+          
           if (
             typeof window !== 'undefined' &&
             typeof window.addEventListener === 'function'
           ) {
             try {
-              // remove first to avoid duplicate listeners
+              
               window.removeEventListener('storage', this.storageListener);
             } catch (e) {
-              // ignore
             }
             window.addEventListener('storage', this.storageListener);
           }
-          // compute initial local count
           this.refreshCount();
         }
       });
     } catch (e) {
-      // If onAuthStateChanged is not available for any reason, fallback to refresh
       this.refreshCount();
     }
   }
