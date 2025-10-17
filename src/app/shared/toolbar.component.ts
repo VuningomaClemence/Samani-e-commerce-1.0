@@ -41,19 +41,19 @@ import { IS_MEDIUM, IS_SMALL } from '../constants';
               <mat-icon>menu</mat-icon>
             </button>
             <mat-menu #menu="matMenu">
-              @if (user && !isAdmin) {
-              <button mat-menu-item routerLink="/acceuil">Acceuil</button>
-              <button mat-menu-item routerLink="/chaises">Chaises</button>
-              <button mat-menu-item routerLink="/canapes">Canapés</button>
-              <button mat-menu-item routerLink="/tables">Tables</button>
-              <button mat-menu-item routerLink="/armoires">Armoires</button>
-              } @if (user && isAdmin){
+              @if (user && isAdmin){
               <button mat-menu-item routerLink="/acceuil">Acceuil</button>
               <button mat-menu-item routerLink="/chaises">Chaises</button>
               <button mat-menu-item routerLink="/canapes">Canapés</button>
               <button mat-menu-item routerLink="/tables">Tables</button>
               <button mat-menu-item routerLink="/armoires">Armoires</button>
               <button mat-menu-item routerLink="/commandes">Commandes</button>
+              } @else {
+              <button mat-menu-item routerLink="/acceuil">Acceuil</button>
+              <button mat-menu-item routerLink="/chaises">Chaises</button>
+              <button mat-menu-item routerLink="/canapes">Canapés</button>
+              <button mat-menu-item routerLink="/tables">Tables</button>
+              <button mat-menu-item routerLink="/armoires">Armoires</button>
               }
             </mat-menu>
           </div>

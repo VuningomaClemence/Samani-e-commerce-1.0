@@ -18,6 +18,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-admin',
@@ -29,10 +31,20 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     MatFormFieldModule,
     MatSelectModule,
     ReactiveFormsModule,
+    MatIconModule,
+    RouterLink,
   ],
   template: `
     <div class="admin-container">
       <mat-card class="admin-card">
+        <a
+          class="btn"
+          style="width: 5%;"
+          routerLink="/acceuil"
+          routerLinkActive="active"
+        >
+          <mat-icon style=" font-weight: 900;">arrow_back_ios</mat-icon>
+        </a>
         <mat-card-header>
           <mat-card-title
             style="width: 100%; text-align: center;font-size: 24px; font-weight: bold; margin-bottom: 20px"
