@@ -139,21 +139,34 @@ import { IS_MEDIUM, IS_SMALL } from '../constants';
   `,
   styles: `
   mat-toolbar{
-    padding: 3rem;
-    gap: 3rem;
+    padding: calc(2.5rem + env(safe-area-inset-top));
+    gap: 0.6rem;
     background-color: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    max-height: calc(1.2rem + env(safe-area-inset-top));
+    height: auto;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 0;
     z-index: 100;
     .left-container {
       display: flex;
-      gap:1rem;
+      gap:0.5rem;
       align-items: center;
     }
+  }
+  .left-container h2 {
+    margin: 0;
+    line-height: 1;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+  mat-icon {
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
   }
    
   .desktop-links {
@@ -173,11 +186,13 @@ import { IS_MEDIUM, IS_SMALL } from '../constants';
   
   @media (max-width: 768px) {
     .left-container {
-      gap:0.5rem;
+      gap:0.25rem;
     }
     mat-toolbar{
-      padding: 2rem;
-      gap: 1rem;
+      padding: 2.5rem 0.5rem;
+      padding-top: calc(0.35rem + env(safe-area-inset-top));
+      gap: 0.4rem;
+      max-height: calc(2.2rem + env(safe-area-inset-top));
     }
     .desktop-links {
       display: none;
@@ -254,7 +269,6 @@ export class ToolbarComponent {
   }
 
   async updateCartCount() {
-    // Utilise le CartService pour récupérer le nombre d'articles
     const { CartService } = await import('../services/cart.service');
     const cartService = new CartService();
     this.cartCount = await cartService

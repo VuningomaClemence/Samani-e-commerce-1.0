@@ -11,14 +11,23 @@ import {
   addDoc,
   serverTimestamp,
 } from 'firebase/firestore';
+import {
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+} from 'firebase/storage';
 
 import { MatCardModule } from '@angular/material/card';
+import { CommonModule } from '@angular/common';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -30,20 +39,23 @@ import { RouterLink } from '@angular/router';
     MatCheckboxModule,
     MatFormFieldModule,
     MatSelectModule,
+    CommonModule,
     ReactiveFormsModule,
     MatIconModule,
+    MatButtonModule,
+    MatProgressBarModule,
     RouterLink,
   ],
   template: `
     <div class="admin-container">
       <mat-card class="admin-card">
         <a
-          class="btn"
-          style="width: 5%;"
+          mat-icon-button
+          color="primary"
           routerLink="/acceuil"
           routerLinkActive="active"
         >
-          <mat-icon style=" font-weight: 900;">arrow_back_ios</mat-icon>
+          <mat-icon style=" font-weight: 900;">arrow_back</mat-icon>
         </a>
         <mat-card-header>
           <mat-card-title
@@ -108,9 +120,47 @@ import { RouterLink } from '@angular/router';
               </mat-select>
             </mat-form-field>
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>URL de l'image</mat-label>
-              <input type="url" matInput formControlName="image" required />
+              <mat-label>Image (URL ou fichier)</mat-label>
+              <input
+                matInput
+                formControlName="image"
+                placeholder="Coller une URL ou sélectionner un fichier"
+              />
+              <button
+                mat-icon-button
+                matSuffix
+                type="button"
+                (click)="fileInput.click()"
+                aria-label="Choisir un fichier"
+              >
+                <mat-icon>attach_file</mat-icon>
+              </button>
             </mat-form-field>
+
+            <input
+              #fileInput
+              type="file"
+              accept="image/*"
+              style="display:none"
+              (change)="onFileSelected($event)"
+            />
+
+            <mat-progress-bar
+              *ngIf="uploading"
+              mode="indeterminate"
+              color="primary"
+            ></mat-progress-bar>
+            <div *ngIf="uploadError" class="error-message">
+              {{ uploadError }}
+            </div>
+
+            <div *ngIf="previewUrl" style="margin-top:8px; text-align:center;">
+              <img
+                [src]="previewUrl"
+                alt="Preview"
+                style="max-width:100%; height:auto; border-radius:4px;"
+              />
+            </div>
             <mat-checkbox formControlName="promotion"
               >Mettre en promotion</mat-checkbox
             >
@@ -134,7 +184,7 @@ import { RouterLink } from '@angular/router';
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: calc(var(--vh, 1vh) * 100);
   }
 
   .admin-card {
@@ -159,7 +209,11 @@ export default class AdminComponent {
   prixPromotionnel: number = 0;
   productForm: FormGroup;
   message = '';
+  uploading = false;
+  uploadError: string | null = null;
+  previewUrl: string | null = null;
   private db = getFirestore();
+  private storage = getStorage();
 
   constructor(private fb: FormBuilder, private snackBar: MatSnackBar) {
     this.productForm = this.fb.group({
@@ -218,6 +272,33 @@ export default class AdminComponent {
       }
     } else {
       this.prixPromotionnel = prix;
+    }
+  }
+
+  async onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+    this.uploading = true;
+    this.uploadError = null;
+    try {
+      // Preview
+      this.previewUrl = URL.createObjectURL(file);
+
+      const storage = this.storage;
+      const fileRef = storageRef(
+        storage,
+        `produits/${Date.now()}_${file.name}`
+      );
+      const snapshot = await uploadBytes(fileRef, file);
+      const downloadUrl = await getDownloadURL(fileRef);
+
+      // Set the form control value to the download URL
+      this.productForm.patchValue({ image: downloadUrl });
+    } catch (err: any) {
+      this.uploadError = err?.message || 'Erreur lors du téléversement';
+    } finally {
+      this.uploading = false;
     }
   }
 }

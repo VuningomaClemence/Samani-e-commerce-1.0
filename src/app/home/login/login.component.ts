@@ -9,7 +9,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-login',
@@ -19,10 +20,21 @@ import { Router } from '@angular/router';
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
+    MatIconModule,
+    RouterLink,
+    RouterLinkActive,
   ],
   template: `
-    <div class="auth-page-container" style="gap: 0">
+    <div class="auth-page-container">
       <mat-card class="auth-card">
+        <a
+          mat-icon-button
+          color="primary"
+          routerLink="/acceuil"
+          routerLinkActive="active"
+        >
+          <mat-icon style=" font-weight: 900;">arrow_back</mat-icon>
+        </a>
         <mat-card-header>
           <mat-card-title
             style="width: 100%; text-align: center;font-size: 24px; font-weight: bold; margin-bottom: 20px"
@@ -143,7 +155,7 @@ import { Router } from '@angular/router';
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: calc(var(--vh, 1vh) * 100);
   }
 
   .auth-card {
