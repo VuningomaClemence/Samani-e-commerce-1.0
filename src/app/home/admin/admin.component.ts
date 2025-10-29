@@ -13,7 +13,7 @@ import {
 } from 'firebase/firestore';
 
 import { MatCardModule } from '@angular/material/card';
-import { CommonModule } from '@angular/common';
+
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -34,13 +34,12 @@ import { environment } from '../../../environments/environment';
     MatCheckboxModule,
     MatFormFieldModule,
     MatSelectModule,
-    CommonModule,
     ReactiveFormsModule,
     MatIconModule,
     MatButtonModule,
     MatProgressBarModule,
-    RouterLink,
-  ],
+    RouterLink
+],
   template: `
     <div class="admin-container">
       <mat-card class="admin-card">
@@ -49,13 +48,13 @@ import { environment } from '../../../environments/environment';
           color="primary"
           routerLink="/acceuil"
           routerLinkActive="active"
-        >
+          >
           <mat-icon style=" font-weight: 900;">arrow_back</mat-icon>
         </a>
         <mat-card-header>
           <mat-card-title
             style="width: 100%; text-align: center;font-size: 24px; font-weight: bold; margin-bottom: 20px"
-          >
+            >
             Ajout du produit
           </mat-card-title>
         </mat-card-header>
@@ -81,91 +80,97 @@ import { environment } from '../../../environments/environment';
                 formControlName="prix"
                 required
                 (input)="updatePrixPromotionnel()"
-              />
-            </mat-form-field>
-            <mat-form-field
-              appearance="outline"
-              class="full-width"
-              *ngIf="productForm.get('promotion')?.value"
-            >
-              <mat-label>Prix promotionnel</mat-label>
-              <input
-                type="number"
-                matInput
-                [value]="prixPromotionnel"
-                readonly
-              />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Catégorie</mat-label>
-              <mat-select formControlName="categorie" required>
-                <mat-option value="chaises">Chaises</mat-option>
-                <mat-option value="canapes">Canapés</mat-option>
-                <mat-option value="tables">Tables</mat-option>
-                <mat-option value="armoires">Armoires</mat-option>
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Image (URL ou fichier)</mat-label>
-              <input
-                matInput
-                formControlName="image"
-                placeholder="Coller une URL ou sélectionner un fichier"
-              />
-              <button
-                mat-icon-button
-                matSuffix
-                type="button"
-                (click)="fileInput.click()"
-                aria-label="Choisir un fichier"
-              >
-                <mat-icon>attach_file</mat-icon>
-              </button>
-            </mat-form-field>
-
-            <input
-              #fileInput
-              type="file"
-              accept="image/*"
-              style="display:none"
-              (change)="onFileSelected($event)"
-            />
-
-            <mat-progress-bar
-              *ngIf="uploading"
-              mode="determinate"
-              [value]="uploadProgress"
-              color="primary"
-            ></mat-progress-bar>
-            <div *ngIf="uploadError" class="error-message">
-              {{ uploadError }}
-            </div>
-
-            <div *ngIf="previewUrl" style="margin-top:8px; text-align:center;">
-              <img
-                [src]="previewUrl"
-                alt="Preview"
-                style="max-width:100%; height:auto; border-radius:4px;"
-              />
-            </div>
-            <mat-checkbox formControlName="promotion"
-              >Mettre en promotion</mat-checkbox
-            >
-            <button
-              class="btn btn-primary"
-              type="submit"
-              [disabled]="productForm.invalid"
-            >
-              Ajouter le produit
-            </button>
-            @if (message) {
-            <div class="error-message">{{ message }}</div>
-            }
-          </form>
-        </mat-card-content>
-      </mat-card>
-    </div>
-  `,
+                />
+              </mat-form-field>
+              @if (productForm.get('promotion')?.value) {
+                <mat-form-field
+                  appearance="outline"
+                  class="full-width"
+                  >
+                  <mat-label>Prix promotionnel</mat-label>
+                  <input
+                    type="number"
+                    matInput
+                    [value]="prixPromotionnel"
+                    readonly
+                    />
+                  </mat-form-field>
+                }
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Catégorie</mat-label>
+                  <mat-select formControlName="categorie" required>
+                    <mat-option value="chaises">Chaises</mat-option>
+                    <mat-option value="canapes">Canapés</mat-option>
+                    <mat-option value="tables">Tables</mat-option>
+                    <mat-option value="armoires">Armoires</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Image (URL ou fichier)</mat-label>
+                  <input
+                    matInput
+                    formControlName="image"
+                    placeholder="Coller une URL ou sélectionner un fichier"
+                    />
+                    <button
+                      mat-icon-button
+                      matSuffix
+                      type="button"
+                      (click)="fileInput.click()"
+                      aria-label="Choisir un fichier"
+                      >
+                      <mat-icon>attach_file</mat-icon>
+                    </button>
+                  </mat-form-field>
+    
+                  <input
+                    #fileInput
+                    type="file"
+                    accept="image/*"
+                    style="display:none"
+                    (change)="onFileSelected($event)"
+                    />
+    
+                    @if (uploading) {
+                      <mat-progress-bar
+                        mode="determinate"
+                        [value]="uploadProgress"
+                        color="primary"
+                      ></mat-progress-bar>
+                    }
+                    @if (uploadError) {
+                      <div class="error-message">
+                        {{ uploadError }}
+                      </div>
+                    }
+    
+                    @if (previewUrl) {
+                      <div style="margin-top:8px; text-align:center;">
+                        <img
+                          [src]="previewUrl"
+                          alt="Preview"
+                          style="max-width:100%; height:auto; border-radius:4px;"
+                          />
+                        </div>
+                      }
+                      <mat-checkbox formControlName="promotion"
+                        >Mettre en promotion</mat-checkbox
+                        >
+                        <button
+                          class="btn btn-primary"
+                          type="submit"
+                          [disabled]="productForm.invalid"
+                          >
+                          Ajouter le produit
+                        </button>
+                        @if (message) {
+                          <div class="error-message">{{ message }}</div>
+                        }
+                      </form>
+                    </mat-card-content>
+                  </mat-card>
+                </div>
+    `,
   styles: `
    .admin-container {
     display: flex;

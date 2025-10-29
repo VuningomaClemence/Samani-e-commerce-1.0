@@ -60,7 +60,7 @@ interface OrderView {
       <div>
         <h3
           style="margin:0;display: flex; align-items: center; justify-content: center; font-size: 1.5rem;"
-        >
+          >
           Liste de toutes les commandes
         </h3>
         <div style="display:flex;align-items:center;gap:8px">
@@ -72,49 +72,49 @@ interface OrderView {
               [(ngModel)]="selectedDate"
               (dateInput)="fetchOrders($event.value)"
               placeholder="Choisir une date"
-            />
-            <mat-datepicker-toggle
-              matSuffix
-              [for]="picker"
-            ></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-          </mat-form-field>
+              />
+              <mat-datepicker-toggle
+                matSuffix
+                [for]="picker"
+              ></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+          </div>
         </div>
-      </div>
-
-      <div style="margin-top:16px">
-        <div class="cards-grid">
-          <mat-card
-            class="order-card"
-            *ngFor="let row of dataSource.data"
-            (click)="toggleDetails(row)"
-            style="cursor:pointer"
-          >
-            <mat-card-title
-              style="font-size: 1.2rem;padding-left: 1rem;font-weight: 600;"
-              >Commande {{ row.id }}</mat-card-title
-            >
-            <mat-card-content>
-              <div>
-                <strong>Client:</strong> {{ row.clientName || row.idClient }}
-              </div>
-              <div>
-                <strong>Date:</strong>
-                {{
-                  row.dateCommande
-                    ? row.dateCommande.toDate
+    
+        <div style="margin-top:16px">
+          <div class="cards-grid">
+            @for (row of dataSource.data; track row) {
+              <mat-card
+                class="order-card"
+                (click)="toggleDetails(row)"
+                style="cursor:pointer"
+                >
+                <mat-card-title
+                  style="font-size: 1.2rem;padding-left: 1rem;font-weight: 600;"
+                  >Commande {{ row.id }}</mat-card-title
+                  >
+                  <mat-card-content>
+                    <div>
+                      <strong>Client:</strong> {{ row.clientName || row.idClient }}
+                    </div>
+                    <div>
+                      <strong>Date:</strong>
+                      {{
+                      row.dateCommande
+                      ? row.dateCommande.toDate
                       ? (row.dateCommande.toDate() | date : 'short')
                       : (row.dateCommande | date : 'short')
-                    : '—'
-                }}
-              </div>
-              <div>
-                <strong>Total:</strong>
-                {{ row.montantTotal | number : '1.2-2' }} $
-              </div>
-              <div>
-                <strong>Statut:</strong>
-                <span
+                      : '—'
+                      }}
+                    </div>
+                    <div>
+                      <strong>Total:</strong>
+                      {{ row.montantTotal | number : '1.2-2' }} $
+                    </div>
+                    <div>
+                      <strong>Statut:</strong>
+                      <span
                   [ngStyle]="{
                     color:
                       row.statutCommande === 'Livré'
@@ -124,129 +124,133 @@ interface OrderView {
                         : '#e73c3cff',
                     fontWeight: 'bold'
                   }"
-                >
-                  {{ row.statutCommande || '—' }}
-                </span>
-              </div>
-            </mat-card-content>
-            <mat-card-actions>
-              <div
-                style="display:flex;align-items:center;gap:8px;padding:0 1rem;justify-content:space-between;width:100%"
-              >
-                <div style="display:flex;align-items:center;gap:8px">
-                  <a
-                    mat-button
-                    style="color: black; cursor:pointer; font-weight:700"
-                    (click)="toggleDetails(row); $event.stopPropagation()"
-                  >
-                    {{ expandedOrderId === row.id ? 'Fermer' : '+ Détails' }}
-                  </a>
-                </div>
-
-                <div
-                  *ngIf="isAdmin && getNextStatus(row.statutCommande)"
-                  style="display:flex;align-items:center"
-                >
-                  <button
-                    class="btn add-to-cart"
-                    (click)="advanceStatus(row, $event)"
-                  >
-                    {{ getActionLabel(row.statutCommande) }}
-                  </button>
-                </div>
-              </div>
-            </mat-card-actions>
-
-            <div class="card-detail" *ngIf="expandedOrderId === row.id">
-              <div style="margin-top:12px">
-                <h4>Client</h4>
-                <div *ngIf="row.client; else noClient2">
-                  <div>
-                    <strong>Nom:</strong> {{ row.client.nom }}
-                    {{ row.client.prenom }}
-                  </div>
-                  <div>
-                    <strong>Email:</strong> {{ row.client.email || '—' }}
-                  </div>
-                  <div>
-                    <strong>Téléphone:</strong>
-                    {{ row.client.telephone || '—' }}
-                  </div>
-                  <div>
-                    <strong>Adresse:</strong>
-                    {{
-                      row.client.adresseLivraison || row.client.adresse || '—'
-                    }}
-                  </div>
-                </div>
-                <ng-template #noClient2
-                  ><div>Aucun détail client disponible</div></ng-template
-                >
-
-                <h4 style="margin-top:12px">Items</h4>
-                <table class="items-table" style="width:100%">
-                  <thead>
-                    <tr>
-                      <th>Produit</th>
-                      <th>Quantité</th>
-                      <th>Prix unitaire</th>
-                      <th>Sous-total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let it of orderItemsMap.get(row.id) || []">
-                      <td>
-                        {{
-                          it.product?._displayName ||
-                            it.nomProduit ||
-                            it.product?.nom ||
-                            it.product?.name ||
-                            it.nom ||
-                            it.productName ||
-                            '—'
-                        }}
-                      </td>
-                      <td>{{ it.quantite ?? it.quantity ?? 1 }}</td>
-                      <td>
-                        {{
-                          it.product?._displayPrice ??
-                            it.product?.prix ??
-                            it.product?.price ??
-                            it.prixUnitaire ??
-                            it.price ??
-                            it.unitPrice ??
-                            0 | number : '1.2-2'
-                        }}
-                        $
-                      </td>
-                      <td>
-                        {{
-                          (it.product?._displayPrice ??
-                            it.product?.prix ??
-                            it.product?.price ??
-                            it.prixUnitaire ??
-                            it.price ??
-                            it.unitPrice ??
-                            0) *
-                            (it.quantite ?? it.quantity ?? 1) | number : '1.2-2'
-                        }}
-                        $
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+                        >
+                        {{ row.statutCommande || '—' }}
+                      </span>
+                    </div>
+                  </mat-card-content>
+                  <mat-card-actions>
+                    <div
+                      style="display:flex;align-items:center;gap:8px;padding:0 1rem;justify-content:space-between;width:100%"
+                      >
+                      <div style="display:flex;align-items:center;gap:8px">
+                        <a
+                          mat-button
+                          style="color: black; cursor:pointer; font-weight:700"
+                          (click)="toggleDetails(row); $event.stopPropagation()"
+                          >
+                          {{ expandedOrderId === row.id ? 'Fermer' : '+ Détails' }}
+                        </a>
+                      </div>
+                      @if (isAdmin && getNextStatus(row.statutCommande)) {
+                        <div
+                          style="display:flex;align-items:center"
+                          >
+                          <button
+                            class="btn add-to-cart"
+                            (click)="advanceStatus(row, $event)"
+                            >
+                            {{ getActionLabel(row.statutCommande) }}
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  </mat-card-actions>
+                  @if (expandedOrderId === row.id) {
+                    <div class="card-detail">
+                      <div style="margin-top:12px">
+                        <h4>Client</h4>
+                        @if (row.client) {
+                          <div>
+                            <div>
+                              <strong>Nom:</strong> {{ row.client.nom }}
+                              {{ row.client.prenom }}
+                            </div>
+                            <div>
+                              <strong>Email:</strong> {{ row.client.email || '—' }}
+                            </div>
+                            <div>
+                              <strong>Téléphone:</strong>
+                              {{ row.client.telephone || '—' }}
+                            </div>
+                            <div>
+                              <strong>Adresse:</strong>
+                              {{
+                              row.client.adresseLivraison || row.client.adresse || '—'
+                              }}
+                            </div>
+                          </div>
+                        } @else {
+                          <div>Aucun détail client disponible</div>
+                        }
+                        <h4 style="margin-top:12px">Items</h4>
+                        <table class="items-table" style="width:100%">
+                          <thead>
+                            <tr>
+                              <th>Produit</th>
+                              <th>Quantité</th>
+                              <th>Prix unitaire</th>
+                              <th>Sous-total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (it of orderItemsMap.get(row.id) || []; track it) {
+                              <tr>
+                                <td>
+                                  {{
+                                  it.product?._displayName ||
+                                  it.nomProduit ||
+                                  it.product?.nom ||
+                                  it.product?.name ||
+                                  it.nom ||
+                                  it.productName ||
+                                  '—'
+                                  }}
+                                </td>
+                                <td>{{ it.quantite ?? it.quantity ?? 1 }}</td>
+                                <td>
+                                  {{
+                                  it.product?._displayPrice ??
+                                  it.product?.prix ??
+                                  it.product?.price ??
+                                  it.prixUnitaire ??
+                                  it.price ??
+                                  it.unitPrice ??
+                                  0 | number : '1.2-2'
+                                  }}
+                                  $
+                                </td>
+                                <td>
+                                  {{
+                                  (it.product?._displayPrice ??
+                                  it.product?.prix ??
+                                  it.product?.price ??
+                                  it.prixUnitaire ??
+                                  it.price ??
+                                  it.unitPrice ??
+                                  0) *
+                                  (it.quantite ?? it.quantity ?? 1) | number : '1.2-2'
+                                  }}
+                                  $
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  }
+                </mat-card>
+              }
             </div>
-          </mat-card>
-        </div>
-
-        <mat-paginator
-          [pageSizeOptions]="[5, 10, 25]"
-          showFirstLastButtons
-        ></mat-paginator>
-      </div>
-    </mat-card>
-  `,
+    
+            <mat-paginator
+              [pageSizeOptions]="[5, 10, 25]"
+              showFirstLastButtons
+            ></mat-paginator>
+          </div>
+        </mat-card>
+    `,
   styles: [
     `
       :host {

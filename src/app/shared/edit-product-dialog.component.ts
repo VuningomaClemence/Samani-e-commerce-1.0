@@ -10,7 +10,7 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -22,7 +22,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   selector: 'app-edit-product-dialog',
   standalone: true,
   imports: [
-    CommonModule,
     MatDialogModule,
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -30,8 +29,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
-    MatCheckboxModule,
-  ],
+    MatCheckboxModule
+],
   template: `
     <h2 mat-dialog-title>Modifier le produit</h2>
     <form [formGroup]="form" (ngSubmit)="save()">
