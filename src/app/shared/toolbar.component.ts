@@ -57,7 +57,7 @@ import { IS_MEDIUM, IS_SMALL } from '../constants';
               }
             </mat-menu>
           </div>
-          <h2 [ngStyle]="{ 'font-size': isMedium ? '1.5rem' : '2rem' }">
+          <h2 [ngStyle]="{ 'font-size': isMedium ? '2rem' : '2.5rem' }">
             <b style="color: #2c3e50">
               <span style="color: #e74c3c">S</span>amani<span
                 style="color: #e74c3c"
@@ -190,7 +190,7 @@ import { IS_MEDIUM, IS_SMALL } from '../constants';
     }
     mat-toolbar{
       padding: 2.5rem 0.5rem;
-      padding-top: calc(0.35rem + env(safe-area-inset-top));
+      padding-top: calc(2.5rem + env(safe-area-inset-top));
       gap: 0.4rem;
       max-height: calc(2.2rem + env(safe-area-inset-top));
     }

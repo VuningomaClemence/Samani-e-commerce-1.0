@@ -11,12 +11,6 @@ import {
   addDoc,
   serverTimestamp,
 } from 'firebase/firestore';
-import {
-  getStorage,
-  ref as storageRef,
-  uploadBytes,
-  getDownloadURL,
-} from 'firebase/storage';
 
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
@@ -29,6 +23,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterLink } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-admin',
@@ -147,7 +142,8 @@ import { RouterLink } from '@angular/router';
 
             <mat-progress-bar
               *ngIf="uploading"
-              mode="indeterminate"
+              mode="determinate"
+              [value]="uploadProgress"
               color="primary"
             ></mat-progress-bar>
             <div *ngIf="uploadError" class="error-message">
@@ -212,8 +208,16 @@ export default class AdminComponent {
   uploading = false;
   uploadError: string | null = null;
   previewUrl: string | null = null;
+  uploadProgress = 0;
+  private readonly MAX_WIDTH = 1200;
+  private readonly MAX_FILE_SIZE = 2 * 1024 * 1024;
   private db = getFirestore();
-  private storage = getStorage();
+
+  // Cloudinary configuration - read from environment
+  private readonly CLOUDINARY_CLOUD_NAME = environment.cloudinary.cloudName;
+  private readonly CLOUDINARY_UPLOAD_PRESET =
+    environment.cloudinary.uploadPreset;
+  private readonly CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${this.CLOUDINARY_CLOUD_NAME}/image/upload`;
 
   constructor(private fb: FormBuilder, private snackBar: MatSnackBar) {
     this.productForm = this.fb.group({
@@ -279,26 +283,113 @@ export default class AdminComponent {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
     const file = input.files[0];
+
+    if (file.size > this.MAX_FILE_SIZE) {
+      this.uploadError = 'Image trop grande. Maximum 2MB.';
+      return;
+    }
+
     this.uploading = true;
     this.uploadError = null;
+    this.uploadProgress = 0;
+
     try {
-      // Preview
       this.previewUrl = URL.createObjectURL(file);
 
-      const storage = this.storage;
-      const fileRef = storageRef(
-        storage,
-        `produits/${Date.now()}_${file.name}`
-      );
-      const snapshot = await uploadBytes(fileRef, file);
-      const downloadUrl = await getDownloadURL(fileRef);
-
-      // Set the form control value to the download URL
-      this.productForm.patchValue({ image: downloadUrl });
+      const compressedFile = await this.compressImage(file);
+      try {
+        const result: any = await this.uploadToCloudinary(
+          compressedFile,
+          file.name
+        );
+        if (result && result.secure_url) {
+          this.productForm.patchValue({ image: result.secure_url });
+          this.uploadProgress = 100;
+        } else {
+          this.uploadError = "Échec de l'upload vers Cloudinary";
+        }
+      } catch (uploadErr: any) {
+        this.uploadError =
+          uploadErr?.message || 'Erreur lors du téléversement vers Cloudinary';
+      }
     } catch (err: any) {
       this.uploadError = err?.message || 'Erreur lors du téléversement';
-    } finally {
       this.uploading = false;
     }
+  }
+
+  private uploadToCloudinary(
+    fileBlob: Blob,
+    originalName: string
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const url = this.CLOUDINARY_URL;
+      const xhr = new XMLHttpRequest();
+      const fd = new FormData();
+      fd.append('file', fileBlob, originalName);
+      fd.append('upload_preset', this.CLOUDINARY_UPLOAD_PRESET);
+
+      xhr.open('POST', url);
+
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          this.uploadProgress = (event.loaded / event.total) * 100;
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const resp = JSON.parse(xhr.responseText);
+            resolve(resp);
+          } catch (e) {
+            reject(e);
+          }
+        } else {
+          reject(new Error('Upload failed with status ' + xhr.status));
+        }
+      };
+
+      xhr.onerror = () => reject(new Error('Network error during upload'));
+      xhr.send(fd);
+    });
+  }
+
+  private compressImage(file: File): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (e) => {
+        const img = new Image();
+        img.src = e.target?.result as string;
+
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          if (width > this.MAX_WIDTH) {
+            height = Math.round((height * this.MAX_WIDTH) / width);
+            width = this.MAX_WIDTH;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (blob) resolve(blob);
+              else reject(new Error('Échec de la compression'));
+            },
+            'image/jpeg',
+            0.7
+          );
+        };
+      };
+      reader.onerror = reject;
+    });
   }
 }
