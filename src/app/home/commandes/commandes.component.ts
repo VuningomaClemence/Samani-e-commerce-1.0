@@ -21,7 +21,10 @@ import {
   orderBy,
   doc,
   getDoc,
+  updateDoc,
 } from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 interface OrderView {
   id: string;
@@ -50,6 +53,7 @@ interface OrderView {
     MatNativeDateModule,
     MatButtonModule,
     MatIconModule,
+    MatSnackBarModule,
   ],
   template: `
     <mat-card appearance="outlined" style="padding:16px">
@@ -108,14 +112,49 @@ interface OrderView {
                 <strong>Total:</strong>
                 {{ row.montantTotal | number : '1.2-2' }} $
               </div>
+              <div>
+                <strong>Statut:</strong>
+                <span
+                  [ngStyle]="{
+                    color:
+                      row.statutCommande === 'Livré'
+                        ? '#09ae53ff'
+                        : row.statutCommande === 'Confirmé'
+                        ? '#12bbf3ff'
+                        : '#e73c3cff',
+                    fontWeight: 'bold'
+                  }"
+                >
+                  {{ row.statutCommande || '—' }}
+                </span>
+              </div>
             </mat-card-content>
             <mat-card-actions>
-              <a
-                style="padding-left: 1rem; color: #a13d32ff"
-                (click)="toggleDetails(row); $event.stopPropagation()"
+              <div
+                style="display:flex;align-items:center;gap:8px;padding:0 1rem;justify-content:space-between;width:100%"
               >
-                {{ expandedOrderId === row.id ? 'Fermer' : 'Détails' }}
-              </a>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <a
+                    mat-button
+                    style="color: black; cursor:pointer; font-weight:700"
+                    (click)="toggleDetails(row); $event.stopPropagation()"
+                  >
+                    {{ expandedOrderId === row.id ? 'Fermer' : '+ Détails' }}
+                  </a>
+                </div>
+
+                <div
+                  *ngIf="isAdmin && getNextStatus(row.statutCommande)"
+                  style="display:flex;align-items:center"
+                >
+                  <button
+                    class="btn add-to-cart"
+                    (click)="advanceStatus(row, $event)"
+                  >
+                    {{ getActionLabel(row.statutCommande) }}
+                  </button>
+                </div>
+              </div>
             </mat-card-actions>
 
             <div class="card-detail" *ngIf="expandedOrderId === row.id">
@@ -252,9 +291,38 @@ export default class CommandesComponent implements AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   private db = getFirestore();
+  isAdmin = false;
+  private auth = getAuth();
 
-  constructor() {
+  constructor(private snackBar: MatSnackBar) {
+    this.setupAdminListener();
     this.fetchOrders();
+  }
+
+  private setupAdminListener() {
+    try {
+      onAuthStateChanged(this.auth, async (user) => {
+        if (!user) {
+          this.isAdmin = false;
+          return;
+        }
+        try {
+          const adminRef = doc(this.db, 'admin_ids', 'admin_ids');
+          const snap = await getDoc(adminRef);
+          if (snap && snap.exists()) {
+            const list = (snap.data() as any)['admin-list'] || [];
+            this.isAdmin = list.some((a: any) => a.email === user.email);
+          } else {
+            this.isAdmin = false;
+          }
+        } catch (e) {
+          console.warn('Failed to check admin list', e);
+          this.isAdmin = false;
+        }
+      });
+    } catch (e) {
+      this.isAdmin = false;
+    }
   }
 
   ngAfterViewInit(): void {
@@ -372,6 +440,59 @@ export default class CommandesComponent implements AfterViewInit {
   resetFilter() {
     this.selectedDate = null;
     this.fetchOrders();
+  }
+
+  getActionLabel(status?: string | null): string {
+    const next = this.getNextStatus(status);
+    if (!next) return '';
+    if (next === 'Confirmé') return 'Confirmer';
+    if (next === 'Livré') return 'Livraison faite';
+    return '';
+  }
+
+  getNextStatus(status?: string | null): string | null {
+    if (!status) return 'Confirmé';
+    const s = status.toLowerCase();
+    if (s === 'en attente' || s === 'en_attente' || s === 'pending')
+      return 'Confirmé';
+    if (s === 'confirmé' || s === 'confirme' || s === 'confirmed')
+      return 'Livré';
+    return null;
+  }
+
+  async advanceStatus(row: OrderView, event?: Event) {
+    try {
+      if (event && typeof event.stopPropagation === 'function') {
+        event.stopPropagation();
+      }
+      const next = this.getNextStatus(row.statutCommande);
+      if (!next) {
+        this.snackBar.open(
+          'Aucune action disponible pour ce statut',
+          'Fermer',
+          { duration: 2000 }
+        );
+        return;
+      }
+      const ref = doc(this.db, 'commandes', row.id);
+      await updateDoc(ref, { statutCommande: next });
+      // update local state
+      row.statutCommande = next;
+      const data = this.dataSource.data.slice();
+      const idx = data.findIndex((d) => d.id === row.id);
+      if (idx > -1) {
+        data[idx] = { ...data[idx], statutCommande: next };
+        this.dataSource.data = data;
+      }
+      this.snackBar.open(`Statut mis à jour: ${next}`, 'Fermer', {
+        duration: 2000,
+      });
+    } catch (e) {
+      console.error('Failed to advance status', e);
+      this.snackBar.open('Erreur lors de la mise à jour du statut', 'Fermer', {
+        duration: 2000,
+      });
+    }
   }
 
   async toggleDetails(row: OrderView) {

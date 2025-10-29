@@ -63,18 +63,17 @@ import { MatTooltipModule } from '@angular/material/tooltip';
         <div
           style="display:flex; justify-content:flex-end; gap:12px; margin-top:12px;"
         >
-          <a mat-icon-button class="btn" (click)="close()" matTooltip="Annuler">
+          <button class="btn" (click)="close()" matTooltip="Annuler">
             <mat-icon style=" font-weight: 900;">arrow_back</mat-icon>
-          </a>
-          <a
-            mat-icon-button
+          </button>
+          <button
             class="btn"
             type="submit"
             matTooltip="Enregistrer"
             [disabled]="form.invalid"
           >
             <mat-icon style=" font-weight: 900;">arrow_forward</mat-icon>
-          </a>
+          </button>
         </div>
       </div>
     </form>

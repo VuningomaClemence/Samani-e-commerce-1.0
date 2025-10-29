@@ -271,10 +271,10 @@ export default class PanierComponent implements OnInit {
   }
 
   getTotal(): number {
-    return this.cartItems.reduce(
-      (sum, item) => sum + item.prix * item.quantite,
-      0
-    );
+    return this.cartItems.reduce((sum, item) => {
+      const unit = this.getUnitPrice(item);
+      return sum + unit * (item.quantite || 1);
+    }, 0);
   }
 
   async updateQty(item: any, change: number) {
@@ -312,7 +312,7 @@ export default class PanierComponent implements OnInit {
       const itemRef = doc(db, 'commandes', commandeRef.id, 'items', item.id);
       batch.set(itemRef, {
         nomProduit: item.nomProduit,
-        prixUnitaire: item.prix,
+        prixUnitaire: this.getUnitPrice(item),
         quantite: item.quantite,
       });
     });
@@ -345,6 +345,18 @@ export default class PanierComponent implements OnInit {
       return Math.round(prix * 0.95);
     }
     return prix;
+  }
+
+  // Return the effective unit price for an item, preferring stored prixPromotion
+  // when the item is on promotion, otherwise compute from prix.
+  getUnitPrice(item: any): number {
+    if (item && item.promotion) {
+      if (typeof item.prixPromotion === 'number' && item.prixPromotion > 0) {
+        return item.prixPromotion;
+      }
+      return this.getNewPrice(item.prix || 0);
+    }
+    return item?.prix || 0;
   }
   async removeItem(item: any) {
     await this.cartService.removeFromCart(item.id);

@@ -57,7 +57,7 @@ import { IS_MEDIUM, IS_SMALL } from '../constants';
               }
             </mat-menu>
           </div>
-          <h2 [ngStyle]="{ 'font-size': isMedium ? '2rem' : '2.5rem' }">
+          <h2 [ngStyle]="{ 'font-size': isMedium ? '1.25rem' : '2rem' }">
             <b style="color: #2c3e50">
               <span style="color: #e74c3c">S</span>amani<span
                 style="color: #e74c3c"
