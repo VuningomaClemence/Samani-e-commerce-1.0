@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { AuthService } from '../../services/auth.service';
@@ -23,6 +24,7 @@ import { MatIconModule } from '@angular/material/icon';
     MatButtonModule,
     MatTooltipModule,
     MatIconModule,
+    MatDialogModule,
   ],
   template: `
     <div class="category-container">
@@ -162,7 +164,8 @@ export default class CollectionComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private snackBar: MatSnackBar,
-    private cartService: CartService
+    private cartService: CartService,
+    private dialog: MatDialog
   ) {
     const auth = getAuth();
     const db = getFirestore();
@@ -183,26 +186,23 @@ export default class CollectionComponent implements OnInit {
   }
 
   async modifierProduit(productId: string, produit: any) {
-    const nomProduit = prompt('Nouveau nom du produit ?', produit.nomProduit);
-    const prix = prompt('Nouveau prix ?', produit.prix);
-    const description = prompt('Nouvelle description ?', produit.description);
-    const quantite = prompt('Nouvelle quantité ?', produit.quantite);
-    const image = prompt("Nouvelle URL de l'image ?", produit.image);
-    const promotion = confirm(
-      'Mettre en promotion ? (OK = Oui, Annuler = Non)'
-    );
-
-    if (nomProduit && prix && description && quantite && image) {
-      const newData = {
-        nomProduit,
-        prix: Number(prix),
-        description,
-        quantite: Number(quantite),
-        image,
-        promotion,
-      };
-      await this.cartService.updateProduct(productId, newData);
-      this.snackBar.open('Produit modifié !', 'Fermer', { duration: 2000 });
+    const mod = await import('../../shared/edit-product-dialog.component');
+    const ref = this.dialog.open(mod.EditProductDialogComponent, {
+      data: produit,
+      width: '400px',
+    });
+    const result = await ref.afterClosed().toPromise();
+    if (result) {
+      const newData = { ...result, prix: Number(result.prix) };
+      const ok = await this.cartService.updateProduct(productId, newData);
+      if (ok)
+        this.snackBar.open('Produit modifié !', 'Fermer', { duration: 2000 });
+      else
+        this.snackBar.open(
+          'Erreur lors de la modification du produit.',
+          'Fermer',
+          { duration: 3000 }
+        );
     }
   }
 

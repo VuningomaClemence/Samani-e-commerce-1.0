@@ -77,20 +77,16 @@ export class CartService {
           ) {
             try {
               window.removeEventListener('storage', this.storageListener);
-            } catch (e) {
-            }
+            } catch (e) {}
           }
         } else {
-          
           if (
             typeof window !== 'undefined' &&
             typeof window.addEventListener === 'function'
           ) {
             try {
-              
               window.removeEventListener('storage', this.storageListener);
-            } catch (e) {
-            }
+            } catch (e) {}
             window.addEventListener('storage', this.storageListener);
           }
           this.refreshCount();
@@ -202,9 +198,15 @@ export class CartService {
   }
 
   // Modifier un produit dans la collection 'produits'
-  async updateProduct(productId: string, newData: any) {
-    const productRef = doc(this.db, 'produits', productId);
-    await updateDoc(productRef, newData);
+  async updateProduct(productId: string, newData: any): Promise<boolean> {
+    try {
+      const productRef = doc(this.db, 'produits', productId);
+      await updateDoc(productRef, newData);
+      return true;
+    } catch (err) {
+      console.error('updateProduct error:', err);
+      return false;
+    }
   }
 
   // Supprimer un produit de la collection 'produits'

@@ -10,6 +10,7 @@ import { inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AsyncPipe, DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
@@ -28,6 +29,7 @@ import { MatIconModule } from '@angular/material/icon';
     MatButtonModule,
     MatTooltipModule,
     MatIconModule,
+    MatDialogModule,
   ],
   template: `
     <section class="products">
@@ -152,7 +154,8 @@ export default class TablesComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private snackBar: MatSnackBar,
-    private cartService: CartService
+    private cartService: CartService,
+    private dialog: MatDialog
   ) {
     const auth = getAuth();
     const db = getFirestore();
@@ -173,26 +176,27 @@ export default class TablesComponent implements OnInit {
   }
 
   async modifierProduit(productId: string, produit: any) {
-    const nomProduit = prompt('Nouveau nom du produit ?', produit.nomProduit);
-    const prix = prompt('Nouveau prix ?', produit.prix);
-    const description = prompt('Nouvelle description ?', produit.description);
-    const quantite = prompt('Nouvelle quantité ?', produit.quantite);
-    const image = prompt("Nouvelle URL de l'image ?", produit.image);
-    const promotion = confirm(
-      'Mettre en promotion ? (OK = Oui, Annuler = Non)'
-    );
+    // Open a dialog (works on Android WebView) instead of using window.prompt
+    // dynamically import the dialog component so it is compiled on demand
+    const mod = await import('../../shared/edit-product-dialog.component');
+    const ref = this.dialog.open(mod.EditProductDialogComponent, {
+      data: produit,
+      width: '400px',
+    });
 
-    if (nomProduit && prix && description && quantite && image) {
-      const newData = {
-        nomProduit,
-        prix: Number(prix),
-        description,
-        quantite: Number(quantite),
-        image,
-        promotion,
-      };
-      await this.cartService.updateProduct(productId, newData);
-      this.snackBar.open('Produit modifié !', 'Fermer', { duration: 2000 });
+    const result = await ref.afterClosed().toPromise();
+    if (result) {
+      try {
+        await this.cartService.updateProduct(productId, result);
+        this.snackBar.open('Produit modifié !', 'Fermer', { duration: 2000 });
+      } catch (err: any) {
+        console.error('Erreur update product:', err);
+        this.snackBar.open(
+          'Erreur lors de la modification du produit.',
+          'Fermer',
+          { duration: 3000 }
+        );
+      }
     }
   }
 

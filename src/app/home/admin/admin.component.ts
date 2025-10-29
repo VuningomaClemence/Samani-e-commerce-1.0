@@ -97,15 +97,6 @@ import { environment } from '../../../environments/environment';
               />
             </mat-form-field>
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Quantité</mat-label>
-              <input
-                type="number"
-                matInput
-                formControlName="quantite"
-                required
-              />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width">
               <mat-label>Catégorie</mat-label>
               <mat-select formControlName="categorie" required>
                 <mat-option value="chaises">Chaises</mat-option>
@@ -224,7 +215,6 @@ export default class AdminComponent {
       nomProduit: ['', Validators.required],
       description: ['', Validators.required],
       prix: [null, [Validators.required, Validators.min(0)]],
-      quantite: [null, [Validators.required, Validators.min(0)]],
       categorie: ['', Validators.required],
       image: ['', Validators.required],
       promotion: [false],

@@ -15,7 +15,9 @@ html {
     )
   );
 } /* You can add global styles to this file, and also import other style files */
-
+:root {
+  --primary-color: #ff6347;
+}
 /* Use CSS variable set by viewport-fix.ts to avoid 100vh issues on mobile */
 html,
 body {
